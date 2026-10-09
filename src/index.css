@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --vaulta-bg: #f7f9fa;
+  --vaulta-surface: #ffffff;
+  --vaulta-primary: #006989;
+  --vaulta-accent: #0cf574;
+  --vaulta-orange: #ff7d00;
+  --vaulta-text: #000300;
+  --vaulta-muted: #667085;
+  --vaulta-border: #e4e7ec;
+}
+
+.dark {
+  --vaulta-bg: #080c10;
+  --vaulta-surface: #101820;
+  --vaulta-primary: #006989;
+  --vaulta-accent: #0cf574;
+  --vaulta-orange: #ff7d00;
+  --vaulta-text: #f7f9fa;
+  --vaulta-muted: #98a2b3;
+  --vaulta-border: #26323b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--vaulta-bg);
+  color: var(--vaulta-text);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: #0cf574;
+  color: #000300;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--vaulta-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vaulta-muted);
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(90deg, var(--vaulta-border) 25%, rgba(255,255,255,0.1) 50%, var(--vaulta-border) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+/* Custom utility classes */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-vaulta-cerulean px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-vaulta-cerulean-dark active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-vaulta-border bg-vaulta-surface px-5 py-2.5 text-sm font-semibold text-vaulta-text transition-all hover:border-vaulta-cerulean active:scale-[0.98];
+  }
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-vaulta-spring px-5 py-2.5 text-sm font-semibold text-vaulta-black transition-all hover:bg-vaulta-spring-dark active:scale-[0.98];
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-vaulta-danger px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-red-600 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-vaulta-muted transition-all hover:bg-vaulta-cerulean/10 hover:text-vaulta-cerulean;
+  }
+  .card {
+    @apply rounded-vaulta border border-vaulta-border bg-vaulta-surface p-5 shadow-vaulta-sm;
+  }
+  .input-field {
+    @apply w-full rounded-lg border border-vaulta-border bg-vaulta-surface px-3.5 py-2.5 text-sm text-vaulta-text placeholder:text-vaulta-muted transition-all focus:border-vaulta-cerulean focus:outline-none focus:ring-2 focus:ring-vaulta-cerulean/20;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--vaulta-primary);
+  outline-offset: 2px;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
