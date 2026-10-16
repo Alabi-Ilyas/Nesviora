@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ToastProvider } from '@/contexts/ToastContext';
@@ -54,6 +54,8 @@ import {
   AdminReportsPage, AdminAdminsPage,
 } from '@/pages/admin/AdminPages';
 
+import { ComingSoon } from '@/pages/ComingSoon';
+
 // Error pages
 import { NotFoundPage, ForbiddenPage, ServerErrorPage } from '@/pages/ErrorPages';
 
@@ -99,38 +101,38 @@ export default function App() {
               {/* Dashboard routes */}
               <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                 <Route index element={<DashboardPage />} />
-                <Route path="portfolio" element={<PortfolioPage />} />
+                <Route path="portfolio" element={<ComingSoon />} />
                 <Route path="investments" element={<DashboardInvestmentsPage />} />
-                <Route path="deposit" element={<DepositPage />} />
-                <Route path="withdraw" element={<WithdrawPage />} />
-                <Route path="transactions" element={<TransactionsPage />} />
-                <Route path="wallet" element={<WalletPage />} />
+                <Route path="deposit" element={<ComingSoon />} />
+                <Route path="withdraw" element={<ComingSoon />} />
+                <Route path="transactions" element={<ComingSoon />} />
+                <Route path="wallet" element={<ComingSoon />} />
                 <Route path="security" element={<DashboardSecurityPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="support" element={<SupportPage />} />
-                <Route path="referrals" element={<ReferralsPage />} />
-                <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="referrals" element={<ComingSoon />} />
+                <Route path="notifications" element={<ComingSoon />} />
               </Route>
 
               {/* Admin routes */}
               <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-                <Route index element={<AdminDashboardPage />} />
+                <Route index element={<Navigate to="users" replace />} />
                 <Route path="users" element={<AdminUsersPage />} />
-                <Route path="kyc" element={<AdminKYCPage />} />
+                <Route path="kyc" element={<ComingSoon />} />
                 <Route path="investments" element={<AdminPlansPage />} />
-                <Route path="deposits" element={<AdminDepositsPage />} />
-                <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
-                <Route path="transactions" element={<AdminTransactionsPage />} />
-                <Route path="assets" element={<AdminAssetsPage />} />
+                <Route path="deposits" element={<ComingSoon />} />
+                <Route path="withdrawals" element={<ComingSoon />} />
+                <Route path="transactions" element={<ComingSoon />} />
+                <Route path="assets" element={<ComingSoon />} />
                 <Route path="plans" element={<AdminPlansPage />} />
                 <Route path="testimonials" element={<AdminTestimonialsPage />} />
-                <Route path="faqs" element={<AdminFAQsPage />} />
+                <Route path="faqs" element={<ComingSoon />} />
                 <Route path="support" element={<AdminSupportPage />} />
-                <Route path="notifications" element={<AdminNotificationsPage />} />
-                <Route path="reports" element={<AdminReportsPage />} />
-                <Route path="settings" element={<AdminSettingsPage />} />
-                <Route path="admins" element={<AdminAdminsPage />} />
-                <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+                <Route path="notifications" element={<ComingSoon />} />
+                <Route path="reports" element={<ComingSoon />} />
+                <Route path="settings" element={<ComingSoon />} />
+                <Route path="admins" element={<ComingSoon />} />
+                <Route path="audit-logs" element={<ComingSoon />} />
               </Route>
 
               {/* Error routes */}

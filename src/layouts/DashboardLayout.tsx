@@ -12,13 +12,7 @@ import { DemoBanner } from '@/components/ui/States';
 
 const sidebarLinks = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { label: 'Portfolio', path: '/dashboard/portfolio', icon: Wallet },
   { label: 'Investments', path: '/dashboard/investments', icon: TrendingUp },
-  { label: 'Wallet', path: '/dashboard/wallet', icon: Wallet },
-  { label: 'Deposit', path: '/dashboard/deposit', icon: ArrowDownToLine },
-  { label: 'Withdraw', path: '/dashboard/withdraw', icon: ArrowUpFromLine },
-  { label: 'Transactions', path: '/dashboard/transactions', icon: ArrowLeftRight },
-  { label: 'Referrals', path: '/dashboard/referrals', icon: Users },
   { label: 'Support', path: '/dashboard/support', icon: LifeBuoy },
   { label: 'Security', path: '/dashboard/security', icon: Shield },
   { label: 'Profile', path: '/dashboard/profile', icon: Settings },

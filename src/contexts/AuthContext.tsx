@@ -21,10 +21,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Restore the session from the httpOnly refresh cookie on first load.
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    setUser(currentUser);
-    setLoading(false);
+    let active = true;
+    authService.restoreSession().then((u) => {
+      if (active) {
+        setUser(u);
+        setLoading(false);
+      }
+    });
+
+    // api.ts fires this when a refresh fails (session expired, account suspended, etc.)
+    const onForcedLogout = () => setUser(null);
+    window.addEventListener('auth:logout', onForcedLogout);
+    return () => {
+      active = false;
+      window.removeEventListener('auth:logout', onForcedLogout);
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -43,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    authService.logout();
     setUser(null);
+    void authService.logout();
   }, []);
 
   const updateProfile = useCallback(async (updates: Partial<User>) => {

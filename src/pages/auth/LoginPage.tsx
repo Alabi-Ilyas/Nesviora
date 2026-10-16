@@ -41,15 +41,6 @@ export function LoginPage() {
     }
   };
 
-  const fillDemo = (type: "user" | "admin") => {
-    if (type === "user") {
-      setEmail("demo@nesviora.test");
-      setPassword("Demo@12345");
-    } else {
-      setEmail("admin@nesviora.test");
-      setPassword("Admin@12345");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-vaulta-bg dark:bg-vaulta-dark-bg flex items-center justify-center px-4 py-12">
@@ -180,25 +171,6 @@ export function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 border-t border-vaulta-border pt-4">
-            <p className="text-xs text-vaulta-muted text-center mb-3">
-              Demo credentials (development only):
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => fillDemo("user")}
-                className="rounded-lg border border-vaulta-border px-3 py-2 text-xs font-medium text-vaulta-text hover:border-vaulta-cerulean transition-colors"
-              >
-                Demo User
-              </button>
-              <button
-                onClick={() => fillDemo("admin")}
-                className="rounded-lg border border-vaulta-border px-3 py-2 text-xs font-medium text-vaulta-text hover:border-vaulta-cerulean transition-colors"
-              >
-                Demo Admin
-              </button>
-            </div>
-          </div>
         </div>
 
         <p className="mt-6 text-center text-sm text-vaulta-muted">

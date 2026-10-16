@@ -31,23 +31,11 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { DemoBanner } from "@/components/ui/States";
 
 const adminLinks = [
-  { label: "Overview", path: "/admin", icon: LayoutDashboard },
   { label: "Users", path: "/admin/users", icon: Users },
-  { label: "KYC", path: "/admin/kyc", icon: FileCheck },
   { label: "Investments", path: "/admin/investments", icon: TrendingUp },
-  { label: "Deposits", path: "/admin/deposits", icon: ArrowDownToLine },
-  { label: "Withdrawals", path: "/admin/withdrawals", icon: ArrowUpFromLine },
-  { label: "Transactions", path: "/admin/transactions", icon: ArrowLeftRight },
-  { label: "Assets", path: "/admin/assets", icon: Coins },
   { label: "Plans", path: "/admin/plans", icon: BarChart3 },
   { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquare },
-  { label: "FAQs", path: "/admin/faqs", icon: HelpCircle },
   { label: "Support", path: "/admin/support", icon: LifeBuoy },
-  { label: "Notifications", path: "/admin/notifications", icon: Bell },
-  { label: "Reports", path: "/admin/reports", icon: FileText },
-  { label: "Settings", path: "/admin/settings", icon: Settings },
-  { label: "Admins", path: "/admin/admins", icon: Shield },
-  { label: "Audit Logs", path: "/admin/audit-logs", icon: ScrollText },
 ];
 
 export function AdminLayout() {

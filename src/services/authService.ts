@@ -1,61 +1,16 @@
-import type { User } from "@/types";
-import { demoUser, demoAdmin } from "@/data/mockData";
+import type { User } from '@/types';
+import { api, setAccessToken } from './api';
 
-const AUTH_KEY = "nesviora_auth_user";
-const USERS_KEY = "nesviora_registered_users";
-
-interface StoredUser extends User {
-  password?: string;
-}
-
-function getStoredUsers(): StoredUser[] {
-  try {
-    const data = localStorage.getItem(USERS_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveStoredUsers(users: StoredUser[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-// Pre-populate demo accounts
-function ensureDemoUsers() {
-  const users = getStoredUsers();
-  if (!users.find((u) => u.email === demoUser.email)) {
-    users.push({ ...demoUser, password: "Demo@12345" });
-  }
-  if (!users.find((u) => u.email === demoAdmin.email)) {
-    users.push({ ...demoAdmin, password: "Admin@12345" });
-  }
-  saveStoredUsers(users);
-}
-
-ensureDemoUsers();
-
-function delay(ms = 400) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+interface Session {
+  user: User;
+  accessToken: string;
 }
 
 export const authService = {
   async login(email: string, password: string): Promise<User> {
-    await delay();
-    const users = getStoredUsers();
-    const user = users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase(),
-    );
-    if (!user) throw new Error("No account found with this email address.");
-    if (user.password !== password)
-      throw new Error("Incorrect password. Please try again.");
-    if (user.status === "suspended")
-      throw new Error(
-        "Your account has been suspended. Please contact support.",
-      );
-    const { password: _, ...userWithoutPassword } = user;
-    localStorage.setItem(AUTH_KEY, JSON.stringify(userWithoutPassword));
-    return userWithoutPassword;
+    const s = await api.post<Session>('/auth/login', { email, password }, { auth: false });
+    setAccessToken(s.accessToken);
+    return s.user;
   },
 
   async register(data: {
@@ -67,116 +22,65 @@ export const authService = {
     password: string;
     referralCode?: string;
   }): Promise<User> {
-    await delay(500);
-    const users = getStoredUsers();
-    if (users.find((u) => u.email.toLowerCase() === data.email.toLowerCase())) {
-      throw new Error("An account with this email already exists.");
-    }
-    const newUser: StoredUser = {
-      id: `usr_${Date.now()}`,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      phone: data.phone,
-      country: data.country,
-      status: "active",
-      role: "user",
-      kycStatus: "not_submitted",
-      createdAt: new Date().toISOString(),
-      referralCode: `NESVIORA-${data.lastName.toUpperCase()}${Date.now().toString(36).toUpperCase().slice(-4)}`,
-      twoFactorEnabled: false,
-      password: data.password,
-      preferences: {
-        currency: "USD",
-        language: "English",
-        notifications: { email: true, push: true, sms: false },
-      },
-    };
-    users.push(newUser);
-    saveStoredUsers(users);
-    const { password: _, ...userWithoutPassword } = newUser;
-    localStorage.setItem(AUTH_KEY, JSON.stringify(userWithoutPassword));
-    return userWithoutPassword;
+    // referralCode is not used in Phase 1; the API ignores unknown fields.
+    const s = await api.post<Session>('/auth/register', data, { auth: false });
+    setAccessToken(s.accessToken);
+    return s.user;
   },
 
-  async logout(): Promise<void> {
-    localStorage.removeItem(AUTH_KEY);
-  },
-
-  getCurrentUser(): User | null {
+  // Called once on page load: uses the httpOnly refresh cookie to restore the session.
+  async restoreSession(): Promise<User | null> {
     try {
-      const data = localStorage.getItem(AUTH_KEY);
-      return data ? JSON.parse(data) : null;
+      const s = await api.post<Session>('/auth/refresh', {}, { auth: false, retry: false });
+      setAccessToken(s.accessToken);
+      return s.user;
     } catch {
+      setAccessToken(null);
       return null;
     }
   },
 
-  async updateProfile(updates: Partial<User>): Promise<User> {
-    await delay(300);
-    const current = this.getCurrentUser();
-    if (!current) throw new Error("Not authenticated");
-    const updated = { ...current, ...updates };
-    localStorage.setItem(AUTH_KEY, JSON.stringify(updated));
-    const users = getStoredUsers();
-    const idx = users.findIndex((u) => u.id === current.id);
-    if (idx >= 0) {
-      users[idx] = { ...users[idx], ...updates };
-      saveStoredUsers(users);
+  async logout(): Promise<void> {
+    try {
+      await api.post('/auth/logout', {}, { auth: false, retry: false });
+    } catch {
+      /* clear local state regardless */
     }
-    return updated;
+    setAccessToken(null);
   },
 
-  async changePassword(
-    currentPassword: string,
-    newPassword: string,
-  ): Promise<void> {
-    await delay(300);
-    const current = this.getCurrentUser();
-    if (!current) throw new Error("Not authenticated");
-    const users = getStoredUsers();
-    const user = users.find((u) => u.id === current.id);
-    if (!user) throw new Error("User not found");
-    if (user.password !== currentPassword)
-      throw new Error("Current password is incorrect.");
-    user.password = newPassword;
-    saveStoredUsers(users);
+  async updateProfile(updates: Partial<User>): Promise<User> {
+    // Only fields the API accepts. avatar must be a real URL (not a data URI).
+    const body: Record<string, unknown> = {};
+    for (const key of ['firstName', 'lastName', 'phone', 'country', 'preferences'] as const) {
+      if (updates[key] !== undefined) body[key] = updates[key];
+    }
+    if (typeof updates.avatar === 'string' && /^https?:\/\//.test(updates.avatar) && updates.avatar.length <= 500) {
+      body.avatar = updates.avatar;
+    }
+    return api.patch<User>('/users/me', body);
   },
 
-  async forgotPassword(email: string): Promise<void> {
-    await delay();
-    const users = getStoredUsers();
-    const user = users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase(),
-    );
-    if (!user) throw new Error("No account found with this email address.");
-    // In production, send email. For demo, just succeed.
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const res = await api.post<{ accessToken: string }>('/auth/change-password', { currentPassword, newPassword });
+    setAccessToken(res.accessToken);
   },
 
+  async forgotPassword(_email: string): Promise<void> {
+    throw new Error('Password reset by email is not available yet. Please contact support.');
+  },
+
+  // Mirrors the roles enforced by the API (src/routes/admin.routes.js).
   hasPermission(user: User | null, permission: string): boolean {
-    if (!user || user.role !== "admin") return false;
-    if (user.adminRole === "super_admin") return true;
+    if (!user || user.role !== 'admin') return false;
+    if (user.adminRole === 'super_admin') return true;
     const permissions: Record<string, string[]> = {
-      ops_admin: [
-        "users",
-        "kyc",
-        "investments",
-        "mining",
-        "support",
-        "reports",
-      ],
-      finance_admin: ["deposits", "withdrawals", "transactions", "reports"],
-      kyc_admin: ["kyc", "users"],
-      support_admin: ["support", "notifications"],
-      content_admin: [
-        "testimonials",
-        "faqs",
-        "settings",
-        "assets",
-        "market",
-        "plans",
-      ],
+      ops_admin: ['users', 'kyc', 'investments', 'plans', 'mining', 'support', 'reports'],
+      finance_admin: ['users', 'investments', 'plans', 'deposits', 'withdrawals', 'transactions', 'reports'],
+      kyc_admin: ['kyc'],
+      support_admin: ['users', 'support', 'notifications'],
+      content_admin: ['testimonials', 'faqs', 'settings', 'assets', 'market'],
     };
-    return permissions[user.adminRole || ""]?.includes(permission) ?? false;
+    return permissions[user.adminRole || '']?.includes(permission) ?? false;
   },
 };

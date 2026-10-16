@@ -12,6 +12,7 @@ import {
   adminDemoTickets,
 } from '@/data/mockData';
 import { generateId, generateReference } from '@/utils';
+import { phase1Investment, phase1Support, phase1Content, phase1Admin } from './phase1';
 
 function delay(ms = 400) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -101,6 +102,10 @@ export const transactionService = {
 // Investment Service
 export const investmentService = {
   async getPlans(): Promise<InvestmentPlan[]> {
+    await delay(200);
+    return store.investmentPlans;
+  },
+  async getAllPlans(): Promise<InvestmentPlan[]> {
     await delay(200);
     return store.investmentPlans;
   },
@@ -494,3 +499,11 @@ export const settingsService = {
     return store.settings;
   },
 };
+
+// ---- Phase 1: real API implementations replace the mock methods of the same name ----
+// Wallets, deposits, withdrawals, KYC, mining, notifications, referrals, FAQs, settings and
+// audit logs remain mock until Phase 2.
+Object.assign(investmentService, phase1Investment);
+Object.assign(supportService, phase1Support);
+Object.assign(contentService, phase1Content);
+Object.assign(adminService, phase1Admin);
