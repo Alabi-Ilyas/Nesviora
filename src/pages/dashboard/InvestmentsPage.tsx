@@ -8,7 +8,8 @@ import { Modal, ConfirmDialog } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/States";
-import { investmentService } from "@/services";
+import { Link } from "react-router-dom";
+import { investmentService, walletService } from "@/services";
 import type { Investment, InvestmentPlan } from "@/types";
 import {
   formatCurrency,
@@ -29,7 +30,8 @@ export function InvestmentsPage() {
   const [showPlans, setShowPlans] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null);
   const [investAmount, setInvestAmount] = useState("");
-  const [investAsset, setInvestAsset] = useState("USDT");
+  const [investAsset, setInvestAsset] = useState("USD");
+  const [balance, setBalance] = useState(0);
   const [creating, setCreating] = useState(false);
   const [detail, setDetail] = useState<Investment | null>(null);
   const [confirmExit, setConfirmExit] = useState<Investment | null>(null);
@@ -38,11 +40,17 @@ export function InvestmentsPage() {
     Promise.all([
       investmentService.getInvestments(user?.id || ""),
       investmentService.getPlans(),
-    ]).then(([inv, pl]) => {
-      setInvestments(inv);
-      setPlans(pl.filter((p) => p.status === "active"));
-      setLoading(false);
-    });
+      walletService.getWallets(user?.id || ""),
+    ])
+      .then(([inv, pl, w]) => {
+        setInvestments(inv);
+        setPlans(pl.filter((p) => p.status === "active"));
+        setBalance(w[0]?.balance ?? 0);
+      })
+      .catch((e) =>
+        error(e instanceof Error ? e.message : "Could not load investments"),
+      )
+      .finally(() => setLoading(false));
   }, [user]);
 
   const filtered = investments.filter((i) => {
@@ -57,6 +65,14 @@ export function InvestmentsPage() {
       error(`Minimum amount is ${formatCurrency(selectedPlan.minAmount)}`);
       return;
     }
+    if (amount > selectedPlan.maxAmount) {
+      error(`Maximum amount is ${formatCurrency(selectedPlan.maxAmount)}`);
+      return;
+    }
+    if (amount + (amount * selectedPlan.fees) / 100 > balance) {
+      error("Insufficient balance. Please make a deposit first.");
+      return;
+    }
     setCreating(true);
     try {
       await investmentService.createInvestment(
@@ -69,8 +85,12 @@ export function InvestmentsPage() {
       setShowPlans(false);
       setSelectedPlan(null);
       setInvestAmount("");
-      const updated = await investmentService.getInvestments(user?.id || "");
+      const [updated, w] = await Promise.all([
+        investmentService.getInvestments(user?.id || ""),
+        walletService.getWallets(user?.id || ""),
+      ]);
       setInvestments(updated);
+      setBalance(w[0]?.balance ?? 0);
     } catch (e) {
       error(e instanceof Error ? e.message : "Failed to create investment");
     } finally {
@@ -329,6 +349,7 @@ export function InvestmentsPage() {
                 className="mt-3 w-full"
                 onClick={() => {
                   setSelectedPlan(plan);
+                  setInvestAsset(plan.supportedAssets[0] || "USD");
                   setInvestAmount(String(plan.minAmount));
                 }}
               >
@@ -370,7 +391,10 @@ export function InvestmentsPage() {
                   onChange={(e) => setInvestAsset(e.target.value)}
                   className="input-field"
                 >
-                  {selectedPlan.supportedAssets.map((a) => (
+                  {(selectedPlan.supportedAssets.length > 0
+                    ? selectedPlan.supportedAssets
+                    : ["USD"]
+                  ).map((a) => (
                     <option key={a} value={a}>
                       {a}
                     </option>
@@ -378,6 +402,45 @@ export function InvestmentsPage() {
                 </select>
               </div>
             </div>
+            {(() => {
+              const amt = parseFloat(investAmount) || 0;
+              const fee = (amt * selectedPlan.fees) / 100;
+              const short = amt + fee > balance;
+              return (
+                <div className="rounded-lg border border-vaulta-border p-3 text-sm space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-vaulta-muted">Available balance</span>
+                    <span className="text-vaulta-text">
+                      {formatCurrency(balance)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-vaulta-muted">
+                      Fee ({selectedPlan.fees}%)
+                    </span>
+                    <span className="text-vaulta-text">
+                      {formatCurrency(fee)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-semibold">
+                    <span className="text-vaulta-text">
+                      Total to be debited
+                    </span>
+                    <span className="text-vaulta-text">
+                      {formatCurrency(amt + fee)}
+                    </span>
+                  </div>
+                  {short && (
+                    <p className="pt-1 text-xs text-vaulta-danger">
+                      Your balance is too low.{" "}
+                      <Link to="/dashboard/deposit" className="underline">
+                        Make a deposit
+                      </Link>
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
             <div className="rounded-lg border border-vaulta-border bg-vaulta-bg dark:bg-vaulta-dark-bg p-3 text-xs text-vaulta-muted">
               <p>
                 <strong className="text-vaulta-text">Terms:</strong>{" "}

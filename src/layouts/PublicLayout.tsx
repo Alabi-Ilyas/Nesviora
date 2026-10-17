@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { DemoBanner } from "@/components/ui/States";
 
 const navLinks = [
   { label: "Markets", path: "/markets" },
@@ -35,7 +34,6 @@ export function PublicLayout() {
 
   return (
     <div className="min-h-screen bg-vaulta-bg dark:bg-vaulta-dark-bg">
-      <DemoBanner />
       {/* Navbar */}
       <header className="sticky top-0 z-40 border-b border-vaulta-border bg-vaulta-surface/80 backdrop-blur-md">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">

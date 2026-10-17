@@ -17,11 +17,12 @@ import {
 
 export function AdminDepositsPage() {
   const { user: admin } = useAuth();
-  const { success } = useToast();
+  const { success, error } = useToast();
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Deposit | null>(null);
   const [note, setNote] = useState("");
+  const [credited, setCredited] = useState("");
 
   useEffect(() => {
     depositService.getAllDeposits().then((d) => {
@@ -32,7 +33,17 @@ export function AdminDepositsPage() {
 
   const handleAction = async (status: Deposit["status"]) => {
     if (!selected) return;
-    await depositService.updateDepositStatus(selected.id, status, note);
+    const creditedAmount = parseFloat(credited);
+    if (status === "confirmed" && !(creditedAmount > 0)) {
+      error("Enter the USD value to credit before confirming.");
+      return;
+    }
+    try {
+      await depositService.updateDepositStatus(selected.id, status, note, status === "confirmed" ? creditedAmount : undefined);
+    } catch (e) {
+      error(e instanceof Error ? e.message : "Could not update the deposit");
+      return;
+    }
     await adminService.addAuditLog({
       adminId: admin?.id || "",
       adminName: `${admin?.firstName} ${admin?.lastName}`,
@@ -43,6 +54,7 @@ export function AdminDepositsPage() {
     success(`Deposit ${status}.`);
     setSelected(null);
     setNote("");
+    setCredited("");
     const updated = await depositService.getAllDeposits();
     setDeposits(updated);
   };
@@ -201,6 +213,20 @@ export function AdminDepositsPage() {
             </div>
             {selected.status === "pending" && (
               <>
+                <div>
+                  <label className="block text-sm font-medium text-vaulta-text mb-1.5">
+                    USD value to credit (required to confirm)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={credited}
+                    onChange={(e) => setCredited(e.target.value)}
+                    className="input-field"
+                    placeholder="e.g. 250.00"
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-vaulta-text mb-1.5">
                     Internal Note

@@ -28,11 +28,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { DemoBanner } from "@/components/ui/States";
 
 const adminLinks = [
   { label: "Users", path: "/admin/users", icon: Users },
   { label: "Investments", path: "/admin/investments", icon: TrendingUp },
+  { label: "Deposits", path: "/admin/deposits", icon: ArrowDownToLine },
+  { label: "Withdrawals", path: "/admin/withdrawals", icon: ArrowUpFromLine },
+  { label: "Transactions", path: "/admin/transactions", icon: ArrowLeftRight },
   { label: "Plans", path: "/admin/plans", icon: BarChart3 },
   { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquare },
   { label: "Support", path: "/admin/support", icon: LifeBuoy },
@@ -114,7 +116,6 @@ export function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-vaulta-bg dark:bg-vaulta-dark-bg">
-      <DemoBanner />
 
       {/* Desktop sidebar */}
       <aside className="fixed left-0 top-0 z-30 flex h-screen w-64 flex-col border-r border-vaulta-border bg-vaulta-surface dark:bg-vaulta-dark-surface">

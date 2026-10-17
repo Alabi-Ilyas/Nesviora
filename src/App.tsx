@@ -32,7 +32,7 @@ import { InvestmentsPage as DashboardInvestmentsPage } from '@/pages/dashboard/I
 import { DepositPage } from '@/pages/dashboard/DepositPage';
 import { WithdrawPage } from '@/pages/dashboard/WithdrawPage';
 import { TransactionsPage } from '@/pages/dashboard/TransactionsPage';
-import { WalletPage } from '@/pages/dashboard/WalletPage';
+import { BalancePage } from '@/pages/dashboard/BalancePage';
 import { SecurityPage as DashboardSecurityPage } from '@/pages/dashboard/SecurityPage';
 import { ProfilePage } from '@/pages/dashboard/ProfilePage';
 import { SupportPage } from '@/pages/dashboard/SupportPage';
@@ -103,10 +103,10 @@ export default function App() {
                 <Route index element={<DashboardPage />} />
                 <Route path="portfolio" element={<ComingSoon />} />
                 <Route path="investments" element={<DashboardInvestmentsPage />} />
-                <Route path="deposit" element={<ComingSoon />} />
-                <Route path="withdraw" element={<ComingSoon />} />
-                <Route path="transactions" element={<ComingSoon />} />
-                <Route path="wallet" element={<ComingSoon />} />
+                <Route path="deposit" element={<DepositPage />} />
+                <Route path="withdraw" element={<WithdrawPage />} />
+                <Route path="transactions" element={<TransactionsPage />} />
+                <Route path="wallet" element={<BalancePage />} />
                 <Route path="security" element={<DashboardSecurityPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="support" element={<SupportPage />} />
@@ -120,9 +120,9 @@ export default function App() {
                 <Route path="users" element={<AdminUsersPage />} />
                 <Route path="kyc" element={<ComingSoon />} />
                 <Route path="investments" element={<AdminPlansPage />} />
-                <Route path="deposits" element={<ComingSoon />} />
-                <Route path="withdrawals" element={<ComingSoon />} />
-                <Route path="transactions" element={<ComingSoon />} />
+                <Route path="deposits" element={<AdminDepositsPage />} />
+                <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
+                <Route path="transactions" element={<AdminTransactionsPage />} />
                 <Route path="assets" element={<ComingSoon />} />
                 <Route path="plans" element={<AdminPlansPage />} />
                 <Route path="testimonials" element={<AdminTestimonialsPage />} />

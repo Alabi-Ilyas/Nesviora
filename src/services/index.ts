@@ -13,6 +13,7 @@ import {
 } from '@/data/mockData';
 import { generateId, generateReference } from '@/utils';
 import { phase1Investment, phase1Support, phase1Content, phase1Admin } from './phase1';
+import { phase2Wallet, phase2Transaction, phase2Deposit, phase2Withdrawal, phase2Investment, phase2Settings } from './phase2';
 
 function delay(ms = 400) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -236,7 +237,7 @@ export const depositService = {
     await delay(300);
     return [...store.deposits, ...store.adminDeposits];
   },
-  async updateDepositStatus(id: string, status: Deposit['status'], note?: string): Promise<Deposit> {
+  async updateDepositStatus(id: string, status: Deposit['status'], note?: string, _creditedAmount?: number): Promise<Deposit> {
     await delay(300);
     const deposit = store.adminDeposits.find((d) => d.id === id) || store.deposits.find((d) => d.id === id);
     if (!deposit) throw new Error('Deposit not found.');
@@ -413,6 +414,10 @@ export const contentService = {
     await delay(200);
     return store.testimonials;
   },
+  async getAllTestimonials(): Promise<Testimonial[]> {
+    await delay(200);
+    return store.testimonials;
+  },
   async getFAQs(): Promise<FAQ[]> {
     await delay(200);
     return store.faqs;
@@ -507,3 +512,12 @@ Object.assign(investmentService, phase1Investment);
 Object.assign(supportService, phase1Support);
 Object.assign(contentService, phase1Content);
 Object.assign(adminService, phase1Admin);
+
+// ---- Phase 2: wallet, deposits, withdrawals, transactions, investing, fees ----
+Object.assign(walletService, phase2Wallet);
+Object.assign(transactionService, phase2Transaction);
+Object.assign(depositService, phase2Deposit);
+Object.assign(withdrawalService, phase2Withdrawal);
+Object.assign(investmentService, phase2Investment);
+const mockGetSettings = settingsService.getSettings.bind(settingsService);
+settingsService.getSettings = async () => phase2Settings.getSettings(await mockGetSettings());

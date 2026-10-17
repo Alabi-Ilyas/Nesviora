@@ -11,7 +11,8 @@ import { formatDate, capitalize, getStatusColor, formatDateTime } from '@/utils'
 
 // ==================== TESTIMONIALS ====================
 export function AdminTestimonialsPage() {
-  const { success } = useToast();
+  const { success, error } = useToast();
+  const [saving, setSaving] = useState(false);
   const [items, setItems] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -19,21 +20,34 @@ export function AdminTestimonialsPage() {
   const [form, setForm] = useState<Partial<Testimonial>>({});
   const [deleteTarget, setDeleteTarget] = useState<Testimonial | null>(null);
 
-  useEffect(() => { contentService.getTestimonials().then((d) => { setItems(d); setLoading(false); }); }, []);
+  useEffect(() => { contentService.getAllTestimonials().then(setItems).catch((e) => error(e instanceof Error ? e.message : 'Could not load testimonials')).finally(() => setLoading(false)); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSave = async () => {
-    if (editing) { await contentService.updateTestimonial(editing.id, form); success('Testimonial updated!'); }
-    else { await contentService.createTestimonial(form as Omit<Testimonial, 'id'>); success('Testimonial created!'); }
-    setShowForm(false); setEditing(null); setForm({});
-    const updated = await contentService.getTestimonials(); setItems(updated);
+    if (!form.name?.trim() || !form.comment?.trim()) { error('Name and comment are required.'); return; }
+    setSaving(true);
+    try {
+      if (editing) { await contentService.updateTestimonial(editing.id, form); success('Testimonial updated!'); }
+      else { await contentService.createTestimonial({ ...(form as Omit<Testimonial, 'id'>), isDemo: false }); success('Testimonial created!'); }
+      setShowForm(false); setEditing(null); setForm({});
+      setItems(await contentService.getAllTestimonials());
+    } catch (e) {
+      error(e instanceof Error ? e.message : 'Could not save the testimonial');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await contentService.deleteTestimonial(deleteTarget.id);
-    success('Testimonial deleted.');
-    setDeleteTarget(null);
-    const updated = await contentService.getTestimonials(); setItems(updated);
+    try {
+      await contentService.deleteTestimonial(deleteTarget.id);
+      success('Testimonial deleted.');
+      setDeleteTarget(null);
+      setItems(await contentService.getAllTestimonials());
+    } catch (e) {
+      error(e instanceof Error ? e.message : 'Could not delete the testimonial');
+    }
   };
 
   const columns: Column<Testimonial>[] = [
@@ -49,7 +63,7 @@ export function AdminTestimonialsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold text-vaulta-text">Testimonials</h1><p className="mt-1 text-sm text-vaulta-muted">Manage testimonials</p></div>
-        <Button onClick={() => { setEditing(null); setForm({ name: '', country: '', comment: '', date: new Date().toISOString().slice(0, 10), verified: false, isDemo: true }); setShowForm(true); }}><Plus size={16} /> Add Testimonial</Button>
+        <Button onClick={() => { setEditing(null); setForm({ name: '', country: '', comment: '', date: new Date().toISOString().slice(0, 10), verified: false, isDemo: false }); setShowForm(true); }}><Plus size={16} /> Add Testimonial</Button>
       </div>
       <Card>
         {loading ? <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-12 skeleton rounded" />)}</div> : (
@@ -70,9 +84,8 @@ export function AdminTestimonialsPage() {
           <div><label className="block text-xs text-vaulta-muted mb-1">Comment</label><textarea rows={3} value={form.comment || ''} onChange={(e) => setForm({ ...form, comment: e.target.value })} className="input-field resize-none" /></div>
           <div className="flex gap-4">
             <label className="flex items-center gap-2 text-sm text-vaulta-text cursor-pointer"><input type="checkbox" checked={form.verified || false} onChange={(e) => setForm({ ...form, verified: e.target.checked })} className="rounded border-vaulta-border" /> Verified</label>
-            <label className="flex items-center gap-2 text-sm text-vaulta-text cursor-pointer"><input type="checkbox" checked={form.isDemo || false} onChange={(e) => setForm({ ...form, isDemo: e.target.checked })} className="rounded border-vaulta-border" /> Demo</label>
           </div>
-          <Button onClick={handleSave} className="w-full">{editing ? 'Update' : 'Create'}</Button>
+          <Button onClick={handleSave} loading={saving} className="w-full">{editing ? 'Update' : 'Create'}</Button>
         </div>
       </Modal>
       <ConfirmDialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} title="Delete Testimonial?" message="Are you sure you want to delete this testimonial?" confirmLabel="Delete" danger />

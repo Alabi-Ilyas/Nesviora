@@ -71,10 +71,6 @@ export function WithdrawPage() {
       error("Please enter a destination wallet address.");
       return;
     }
-    if (form.twoFactor !== "123456") {
-      error("Please enter the 2FA code (use 123456 for demo).");
-      return;
-    }
     setConfirmOpen(true);
   };
 
@@ -266,24 +262,6 @@ export function WithdrawPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-vaulta-text mb-1.5">
-                2FA Code
-              </label>
-              <input
-                type="text"
-                value={form.twoFactor}
-                onChange={(e) =>
-                  setForm({ ...form, twoFactor: e.target.value })
-                }
-                className="input-field"
-                placeholder="Enter 6-digit code"
-                maxLength={6}
-              />
-              <p className="mt-1 text-xs text-vaulta-muted">
-                Demo code: 123456
-              </p>
-            </div>
 
             <div className="flex items-start gap-2 rounded-lg border border-vaulta-warning/20 bg-vaulta-warning/5 p-3">
               <AlertTriangle
@@ -297,7 +275,7 @@ export function WithdrawPage() {
                 <p className="text-xs text-vaulta-muted mt-0.5">
                   Always verify the destination address. Crypto transactions are
                   irreversible. Nesviora Capital Market Limited will never ask
-                  for your 2FA code.
+                  for your password.
                 </p>
               </div>
             </div>

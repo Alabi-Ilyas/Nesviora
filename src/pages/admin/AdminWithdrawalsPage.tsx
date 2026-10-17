@@ -18,7 +18,7 @@ import {
 
 export function AdminWithdrawalsPage() {
   const { user: admin } = useAuth();
-  const { success } = useToast();
+  const { success, error } = useToast();
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Withdrawal | null>(null);
@@ -34,12 +34,17 @@ export function AdminWithdrawalsPage() {
 
   const handleAction = async (status: Withdrawal["status"]) => {
     if (!selected) return;
-    await withdrawalService.updateWithdrawalStatus(
-      selected.id,
-      status,
-      hash || undefined,
-      note || undefined,
-    );
+    try {
+      await withdrawalService.updateWithdrawalStatus(
+        selected.id,
+        status,
+        hash || undefined,
+        note || undefined,
+      );
+    } catch (e) {
+      error(e instanceof Error ? e.message : "Could not update the withdrawal");
+      return;
+    }
     await adminService.addAuditLog({
       adminId: admin?.id || "",
       adminName: `${admin?.firstName} ${admin?.lastName}`,

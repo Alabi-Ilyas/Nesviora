@@ -8,11 +8,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { DemoBanner } from '@/components/ui/States';
 
 const sidebarLinks = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+  { label: 'Wallet', path: '/dashboard/wallet', icon: Wallet },
+  { label: 'Deposit', path: '/dashboard/deposit', icon: ArrowDownToLine },
+  { label: 'Withdraw', path: '/dashboard/withdraw', icon: ArrowUpFromLine },
   { label: 'Investments', path: '/dashboard/investments', icon: TrendingUp },
+  { label: 'Transactions', path: '/dashboard/transactions', icon: ArrowLeftRight },
   { label: 'Support', path: '/dashboard/support', icon: LifeBuoy },
   { label: 'Security', path: '/dashboard/security', icon: Shield },
   { label: 'Profile', path: '/dashboard/profile', icon: Settings },
@@ -82,7 +85,6 @@ export function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-vaulta-bg dark:bg-vaulta-dark-bg">
-      <DemoBanner />
 
       {/* Desktop sidebar */}
       <aside className="fixed left-0 top-0 z-30 flex h-screen w-64 flex-col border-r border-vaulta-border bg-vaulta-surface dark:bg-vaulta-dark-surface">

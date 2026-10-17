@@ -39,6 +39,8 @@ export const phase1Support = {
 
 export const phase1Content = {
   getTestimonials: () => api.get<Testimonial[]>('/testimonials'),
+  // Admin view: includes demo/placeholder entries so they can be edited or deleted.
+  getAllTestimonials: () => api.get<Testimonial[]>('/admin/testimonials'),
   createTestimonial: (t: Omit<Testimonial, 'id'>) => {
     const { date, ...rest } = t;
     return api.post<Testimonial>('/admin/testimonials', date ? { ...rest, date } : rest);

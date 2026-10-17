@@ -54,7 +54,7 @@ export function LandingPage() {
       setAssets(a);
       setPlans(p.filter((p) => p.status === "active"));
       setMiningPlans(m.filter((m) => m.status === "active").slice(0, 3));
-      setTestimonials(t);
+      setTestimonials(t.filter((x) => !x.isDemo));
       setFaqs(f.slice(0, 6));
       setPortfolioData(chart);
       setLoading(false);
@@ -616,17 +616,14 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials (only shown when there are real ones) */}
+      {testimonials.length > 0 && (
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="flex flex-col items-center text-center">
             <h2 className="text-3xl font-bold text-vaulta-text">
               What Our Users Say
             </h2>
-            <p className="mt-3 text-vaulta-muted">
-              Demo testimonials — these will be replaced with verified user
-              feedback
-            </p>
           </div>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {testimonials.map((t, i) => (
@@ -656,16 +653,12 @@ export function LandingPage() {
                   </div>
                 </div>
                 <p className="mt-4 text-sm text-vaulta-muted">"{t.comment}"</p>
-                {t.isDemo && (
-                  <p className="mt-3 text-xs text-vaulta-orange">
-                    Demo content
-                  </p>
-                )}
               </motion.div>
             ))}
           </div>
         </div>
       </section>
+      )}
 
       {/* FAQ preview */}
       <section className="py-16 bg-vaulta-surface dark:bg-vaulta-dark-surface">
