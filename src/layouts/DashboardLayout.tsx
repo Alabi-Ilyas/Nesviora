@@ -1,3 +1,4 @@
+import { Logo } from '@/components/ui/Logo';
 import { useState } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,6 +27,21 @@ export function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Desktop sidebar can be collapsed; the choice is remembered. Below lg the menu button opens the drawer.
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('sidebar-collapsed') === '1'; } catch { return false; }
+  });
+  const toggleMenu = () => {
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+      setCollapsed((c) => {
+        const next = !c;
+        try { localStorage.setItem('sidebar-collapsed', next ? '1' : '0'); } catch { /* ignore */ }
+        return next;
+      });
+    } else {
+      setSidebarOpen(true);
+    }
+  };
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
@@ -38,12 +54,7 @@ export function DashboardLayout() {
   const sidebarContent = (
     <>
       <div className="flex items-center gap-2 px-4 py-5">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-vaulta-cerulean">
-            <Shield size={20} className="text-white" />
-          </div>
-          <span className="text-xl font-bold tracking-tight text-vaulta-text">NESVIORA</span>
-        </Link>
+        <Logo to="/" className="h-12" />
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2 scrollbar-hide">
@@ -87,7 +98,7 @@ export function DashboardLayout() {
     <div className="min-h-screen bg-vaulta-bg dark:bg-vaulta-dark-bg">
 
       {/* Desktop sidebar */}
-      <aside className="fixed left-0 top-0 z-30 flex h-screen w-64 flex-col border-r border-vaulta-border bg-vaulta-surface dark:bg-vaulta-dark-surface">
+      <aside className={`fixed left-0 top-0 z-30 hidden h-screen w-64 flex-col border-r border-vaulta-border bg-vaulta-surface dark:bg-vaulta-dark-surface ${collapsed ? "" : "lg:flex"}`}>
         {sidebarContent}
       </aside>
 
@@ -116,14 +127,14 @@ export function DashboardLayout() {
       </AnimatePresence>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className={collapsed ? "" : "lg:pl-64"}>
         {/* Header */}
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-vaulta-border bg-vaulta-surface/80 backdrop-blur-md px-4 py-3 lg:px-8">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSidebarOpen(true)}
-              className="rounded-lg p-2 text-vaulta-text lg:hidden"
-              aria-label="Open menu"
+              onClick={toggleMenu}
+              className="rounded-lg p-2 text-vaulta-text"
+              aria-label="Toggle menu"
             >
               <Menu size={20} />
             </button>

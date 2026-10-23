@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Shield,
   Mail,
   Lock,
   Eye,
@@ -14,6 +13,7 @@ import {
   AlertCircle,
   Check,
 } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 
@@ -104,14 +104,7 @@ export function RegisterPage() {
         className="w-full max-w-lg"
       >
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-vaulta-cerulean">
-              <Shield size={22} className="text-white" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight text-vaulta-text">
-              NESVIORA
-            </span>
-          </Link>
+          <Logo className="h-20" />
         </div>
 
         <div className="mt-8 rounded-nesviora border border-vaulta-border bg-vaulta-surface p-8 shadow-nesviora">

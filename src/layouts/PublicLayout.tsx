@@ -16,9 +16,9 @@ function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2">
       <img
-        src="/assets/images/nesviora_logo.png"
+        src="/assets/images/nesviora_logo_tight.png"
         alt="Nesviora Capital Market Limited"
-        className="h-10 w-auto object-contain"
+        className="h-12 w-auto rounded-md object-contain"
       />
     </Link>
   );
